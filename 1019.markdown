@@ -1,0 +1,140 @@
+# javascript 面向对象编程
+### 面向对象编程模式
+1. 构造函数的继承
+让一个构造函数继承另一个构造函数，这是非常常见的需求。
+这里可以分两步来实现，第一不是在子类的构造函数中，调用构造函数
+``` javascript
+function Super(type){
+    this.type = type,
+}
+function Sub(value){
+    Super.call(this,'dog'); 
+    this.name = name;
+}
+
+```
+
+2. 模块
+随着网站逐渐成为“互联网应用程序”，嵌入网页的javascript代码越来越庞大和复杂。网页越来越像桌面程序，需要一个团队分工协作，进度管理、单元测试等等...开发者不得不使用软件工程的方法，管理网页的业务逻辑。
+
+javascript模块化编程，已经成为一个迫切的需求。理想情况下，开发者只需要实现核心的业务逻辑，其他人都可以加载别人已经写好的模块。
+
+但是，javascript不是一种模块化编程语言，ES5不支持“类”（class），
+ES6正式支持“类”和“模块”，但是还没有成为主流。javascript社区作了很多努力，在现有的运行环境中，实现模块的效果。
+
+2.1 模块的基本实现方法
+模块是实现特定功能的一组属性和方法的封装。
+只要把不同的函数（以及记录状态的变量）简单的放在一起，就算是一个模块。
+```javascript
+function m1(){}
+function m2(){}
+```
+上面的函数m1和m2，组成一个模块，使用的时候，直接调用就行。
+
+这种做法有很明显的缺点：造成全局污染，无法保障不与其他模块发生变量名冲突，而且模块成员之间看不出直接关系。
+
+为了解决上面的缺点，可以把模块封装成一个对象，所有的模块成员都放到这个对象里面。
+```javascript
+var module1 = new Object({
+    _count:0,
+    m1:function(){
+        
+    },
+    m2:function(){
+
+    }
+});
+```
+上面的m1和m2,都被封装在module对象里使用的时候就调用这个对象的属性。
+
+但是，这样的写法会暴露所有的模块成员，内部的状态可以被外部改写。
+
+3.2 封装私有变量：构造函数的写法
+```javascript
+function StringBuilder(){
+    var buffer = [];
+    this.add  function(str){
+        buffer.push(str);
+    };
+    this.toString = function(){
+        return buffer,join('');
+    }
+}
+```
+这种方法将私有变量封装在构造函数中，违背了构造函数与实例对象相分离的原则。并且，非常消耗内存。
+```javascript
+ function StringBulider() {
+        this.buffer = [];
+    }
+    StringBulider.prototype = {
+        constructor: StringBulider,
+        add: function(str) {
+            this._buffer.push(str);
+        },
+        toString: function() {
+            return this.buffer.join('');
+        }
+    }
+```
+
+这种方法将私有变量放入实例对象中，好处是看起来自然，但是私有变量可以被外部读写，不是很安全。
+
+3.3 封装私有变量，立即执行函数的写法
+使用立即执行函数(Immediately-Invoked Function Expression,IIFE),将相关的属性和方法封装在一个函数作用域里面，可达到不暴露私有成员的目的。
+```javascript
+var  module = (function(){
+    var _count = 0;
+    var m1 = function(){
+
+    }
+    var m2 = function(){
+
+    }
+    return{
+        m1:m1,
+        m2:m2
+    };
+})();
+```
+使用上面的写法，外部代码无法读取内部的_count变量。
+以上就是javascript的模块的基本写法
+
+2.4 模块的放大模式
+如果一个模块很大，必须分成几个部分，或者一个模块需要继承另一个模块，这时就有必要采用“放大模式”(augmentation).
+```javascript
+var module = (function(mod){
+    mod.m3 = function(){
+
+    }
+    return mod;
+})(module);
+```
+上面这段代码为module模块添加了一个新方法m3,然后返回新的module模块。
+
+在浏览器环境中，模块的各个部分通常都是网上获取的，有时无法知道那个部分会先被加载，如果采用上面的写法，第一个执行额部分可能加载一个不存在的空对象，这个时候就要采用“宽放大模式”（Loose augmentation）。
+```javascript
+var module = (function(mod){
+    //...
+    return mod;    
+})(window.module || {});
+```
+与放大模式相比，“宽放大模式”就是“立即实行函数"的参数可以是空对象
+
+2.5 输入全局变量
+独立性是模块化的重要特点，模块内部最好不予程序其他部分直接交互。
+
+为了在模块内部调用全局变量，必须显式的将其他变量输入模块。
+```javascript
+var module = (function($,YAHOO){
+
+})(jQuery,YAHOO);
+```
+上面这个module模块需要使用jQuery库和YUI库，就是把这两个库（其实就是两个模块）当做参数输入到module中，这样做除了保证模块
+
+ > requirejs
+
+ # 多态
+ 多种形态，函数的多种运行状态
+ Java C# 多态的的体现，函数的重载(具有相同的函数名，不同参数)
+ 有功能相近的函数统一命名，
+ JavaScript如何实现多态？可以判断参数的个数，或者参数的数据类型，
